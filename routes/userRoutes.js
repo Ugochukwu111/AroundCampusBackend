@@ -20,13 +20,26 @@
 const express = require('express');
 const router = express.Router();
 const { registerUser } = require('../controllers/authController');
+const { signInUser } = require('../controllers/authController');
+const {  forgotPassword, resetPassword } = require('../controllers/authController');
+
+
+
 
 // Test route
 router.get('/', (req, res) => {
   res.send('User route working!');
 });
+router.post('/signin', signInUser);
 
 // Signup route
 router.post('/signup', registerUser);
+
+
+// 🔐 Forgot Password (send reset link)
+router.post('/forgot-password', forgotPassword);
+
+// 🔐 Reset Password (submit new password)
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

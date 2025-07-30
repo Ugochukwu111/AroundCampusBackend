@@ -8,7 +8,7 @@ connectDB(); // Connect to MongoDB
 
 const app = express();
 
-app.use(express.json()); // for parsing application/json
+app.use(express.json()); // for parsing application/jsona
 
 
 
