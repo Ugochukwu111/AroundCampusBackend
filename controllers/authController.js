@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const resetTokens = {}; // token: { userId, expires }
+const nodemailer = require('nodemailer');
 // @desc   Register new user
 // @route  POST /api/users/signup
 // @access Public
@@ -123,31 +124,60 @@ const signInUser = async (req, res) => {
 };
 
 
-//forgot password scripts
+
+//script for forgot password
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
+    // 1. Find user
     const user = await User.findOne({ email });
-
-    if (!user) {
+    if (!user) 
       return res.status(404).json({ message: 'User not found' });
-    }
 
-    const token = crypto.randomBytes(20).toString('hex');
-    const expires = Date.now() + 15 * 60 * 1000; // 15 minutes
-
+    // 2. Generate token & expiry
+    const token   = crypto.randomBytes(20).toString('hex');
+    const expires = Date.now() + 15 * 60 * 1000; // 15 min
     resetTokens[token] = { userId: user._id, expires };
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}`; // frontend will consume this
-    console.log(`🔗 RESET LINK for ${email}: ${resetLink}`);
+    // 3. Build reset link for your frontend
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    res.status(200).json({ message: 'Reset link sent (simulated). Check console.' });
+    // 4. Configure Gmail transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+
+    // 5. Send the email
+    const info = await transporter.sendMail({
+      from:    `"Around Campus" <${process.env.GMAIL_USER}>`,
+      to:      email,
+      subject: '🔒 Reset Your Password',
+      html: `
+        <p>Hi ${user.fullName || ''},</p>
+        <p>You requested a password reset. Click below to set a new password:</p>
+        <p><a href="${resetLink}">Reset Password</a></p>
+        <p>This link expires in 15 minutes.</p>
+      `,
+    });
+
+    console.log('✅ Reset email sent:', info.messageId);
+
+    return res
+      .status(200)
+      .json({ message: 'Reset link sent. Check your email inbox.' });
   } catch (error) {
-    console.error('Forgot Password error:', error);
-    res.status(500).json({ message: 'Server error. Please try again later.' });
+    console.error('💥 Forgot Password error:', error);
+    return res
+      .status(500)
+      .json({ message: 'Server error. Please try again later.' });
   }
 };
+
 
 // reset password scripts
 const resetPassword = async (req, res) => {
