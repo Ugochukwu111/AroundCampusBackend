@@ -21,7 +21,9 @@ const express = require('express');
 const router = express.Router();
 const { registerUser } = require('../controllers/authController');
 const { signInUser } = require('../controllers/authController');
-const {  forgotPassword, resetPassword } = require('../controllers/authController');
+const {  forgotPassword, resetPassword , updateUserProfile } = require('../controllers/authController');
+const { verifyToken } = require('../middleware/authMiddleware');
+
 
 
 
@@ -41,5 +43,7 @@ router.post('/forgot-password', forgotPassword);
 
 // 🔐 Reset Password (submit new password)
 router.post('/reset-password', resetPassword);
+
+router.patch('/complete-profile', verifyToken, updateUserProfile);
 
 module.exports = router;

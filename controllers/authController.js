@@ -141,7 +141,7 @@ const forgotPassword = async (req, res) => {
     resetTokens[token] = { userId: user._id, expires };
 
     // 3. Build reset link for your frontend
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password.html?token=${token}`;
 
     // 4. Configure Gmail transporter
     const transporter = nodemailer.createTransport({
@@ -178,38 +178,69 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-
 // reset password scripts
 const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
+    console.log("🔐 Reset password attempt");
+    console.log("Received token:", token);
+    console.log("New password:", newPassword);
+
     const data = resetTokens[token];
 
     if (!data || data.expires < Date.now()) {
+      console.log("❌ Invalid or expired token");
       return res.status(400).json({ message: 'Token is invalid or expired' });
     }
 
     const user = await User.findById(data.userId);
     if (!user) {
+      console.log("❌ User not found");
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Let the userSchema pre-save hook handle hashing
+    user.password = newPassword;
     await user.save();
 
-    delete resetTokens[token];
+    console.log("✅ Password successfully reset for:", user.email);
+
+    delete resetTokens[token]; // Remove used token
+    console.log("🧹 Token deleted from resetTokens");
 
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
-    console.error('Reset Password error:', error);
+    console.error('❗ Reset Password error:', error);
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
+
+const updateUserProfile = async (req, res) => {
+  try {
+    const { userName, fullName, phoneNumber } = req.body;
+    const userId = req.user.id;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { userName, fullName, phoneNumber },
+      { new: true }
+    );
+
+    res.status(200).json({ message: 'Profile updated', user: updatedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
+
+
 
 module.exports = {
   registerUser,
   signInUser,
   forgotPassword,
   resetPassword,
+  updateUserProfile,
 };
