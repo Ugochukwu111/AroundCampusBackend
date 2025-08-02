@@ -68,11 +68,6 @@ const signInUser = async (req, res) => {
     
     const { email, password } = req.body;
 
-    // Log type and length of password
-    console.log('🔐 Input password (raw):', password);
-    console.log('🧪 Type of password:', typeof password);
-    console.log('📏 Length of password:', password.length);
-
     if (!email || !password) {
       console.log('⚠️ Missing email or password');
       return res.status(400).json({ message: 'Please fill in all fields.' });
@@ -85,10 +80,6 @@ const signInUser = async (req, res) => {
       console.log('❌ No user with that email.');
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
-
-    console.log('🧂 Hashed password in DB:', user.password);
-    console.log('🧮 Type of stored password:', typeof user.password);
-    console.log('📏 Length of hashed password:', user.password.length);
 
     const isMatch = await bcrypt.compare(password, user.password);
     console.log('✅ Password match result:', isMatch);
@@ -104,18 +95,15 @@ const signInUser = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    console.log('🎫 JWT token generated:', token);
+   
+const userWithoutPassword = user.toObject(); // Convert Mongoose doc to plain JS object
+delete userWithoutPassword.password;         // Remove sensitive info
 
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id, // Make sure front end expects `_id`
-        fullName: user.fullName,
-        email: user.email,
-        school: user.school,
-      }
-    });
+res.status(200).json({
+  message: 'Login successful',
+  token,
+  user: userWithoutPassword,
+});
 
   } catch (error) {
     console.error('💥 Signin error:', error);
@@ -227,7 +215,7 @@ const updateUserProfile = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ message: 'Profile updated', user: updatedUser });
+    res.status(200).json({ message: 'Profile updated', updatedUser: updatedUser });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Something went wrong' });
