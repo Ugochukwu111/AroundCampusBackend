@@ -39,3 +39,4 @@ app.listen(PORT, () => {
 
 const listingRoutes = require('./routes/listingRoutes');
 app.use('/api/listings', listingRoutes);
+app.use('/api', require('./routes/contact'));
