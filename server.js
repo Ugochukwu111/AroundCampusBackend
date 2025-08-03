@@ -12,8 +12,6 @@ app.use(express.json()); // for parsing application/jsona
 
 
 
-
-
 // cors
 app.use(cors({
   origin: ['https://around-campus.vercel.app', 'http://127.0.0.1:5501'], // or your frontend URL
