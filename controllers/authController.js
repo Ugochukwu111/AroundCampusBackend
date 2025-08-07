@@ -212,15 +212,21 @@ const updateUserProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { userName, fullName, phoneNumber },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
-    res.status(200).json({ message: 'Profile updated', updatedUser: updatedUser });
+    res.status(200).json({ message: 'Profile updated', updatedUser });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Something went wrong' });
+    console.error('Update error:', err); // Debug
+
+    if (err.code === 11000 && err.keyValue?.userName) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    res.status(500).json({ error: 'Something went wrong' }); // use error key consistently
   }
 };
+
 
 
 
