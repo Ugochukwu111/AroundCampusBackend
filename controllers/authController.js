@@ -54,7 +54,6 @@ res.status(201).json({
 });
 
   } catch (error) {
-    console.error('Signup error:', error);
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
@@ -64,28 +63,20 @@ res.status(201).json({
 // @access Public
 const signInUser = async (req, res) => {
   try {
-    console.log('📩 Received sign-in data:', req.body);
-    
     const { email, password } = req.body;
 
     if (!email || !password) {
-      console.log('⚠️ Missing email or password');
       return res.status(400).json({ message: 'Please fill in all fields.' });
     }
 
     const user = await User.findOne({ email });
-    console.log('👤 User found:', user);
 
     if (!user) {
-      console.log('❌ No user with that email.');
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('✅ Password match result:', isMatch);
-
     if (!isMatch) {
-      console.log('❌ Password does not match.');
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
@@ -106,7 +97,6 @@ res.status(200).json({
 });
 
   } catch (error) {
-    console.error('💥 Signin error:', error);
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
@@ -153,13 +143,11 @@ const forgotPassword = async (req, res) => {
       `,
     });
 
-    console.log('✅ Reset email sent:', info.messageId);
 
     return res
       .status(200)
       .json({ message: 'Reset link sent. Check your email inbox.' });
   } catch (error) {
-    console.error('💥 Forgot Password error:', error);
     return res
       .status(500)
       .json({ message: 'Server error. Please try again later.' });
@@ -171,20 +159,15 @@ const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
-    console.log("🔐 Reset password attempt");
-    console.log("Received token:", token);
-    console.log("New password:", newPassword);
 
     const data = resetTokens[token];
 
     if (!data || data.expires < Date.now()) {
-      console.log("❌ Invalid or expired token");
       return res.status(400).json({ message: 'Token is invalid or expired' });
     }
 
     const user = await User.findById(data.userId);
     if (!user) {
-      console.log("❌ User not found");
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -192,14 +175,10 @@ const resetPassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    console.log("✅ Password successfully reset for:", user.email);
-
     delete resetTokens[token]; // Remove used token
-    console.log("🧹 Token deleted from resetTokens");
 
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
-    console.error('❗ Reset Password error:', error);
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
@@ -209,6 +188,15 @@ const updateUserProfile = async (req, res) => {
     const { userName, fullName, phoneNumber } = req.body;
     const userId = req.user.id;
 
+    // Check if username is taken by someone else
+    if (userName) {
+            const existingUser = await User.findOne({ userName });
+
+        if (existingUser) {
+          return res.status(400).json({ error: 'Username already taken' });
+        }
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { userName, fullName, phoneNumber },
@@ -217,13 +205,7 @@ const updateUserProfile = async (req, res) => {
 
     res.status(200).json({ message: 'Profile updated', updatedUser });
   } catch (err) {
-    console.error('Update error:', err); // Debug
-
-    if (err.code === 11000 && err.keyValue?.userName) {
-      return res.status(400).json({ error: 'Username already taken' });
-    }
-
-    res.status(500).json({ error: 'Something went wrong' }); // use error key consistently
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
