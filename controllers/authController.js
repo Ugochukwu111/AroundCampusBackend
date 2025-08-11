@@ -44,7 +44,7 @@ res.status(201).json({
     email: user.email,
     userName: user.userName || '',
     image: user.image || '',
-    isSeller: user.isSeller || false,
+    isSeller: true,
     phone: user.phone || '',
     school: user.school || '',
     createdAt: user.createdAt,

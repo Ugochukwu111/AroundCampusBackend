@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   school: { type: String, required: true },
   password: { type: String, required: true },
+  isSeller: { type: Boolean, default: true }
 });
 
 
