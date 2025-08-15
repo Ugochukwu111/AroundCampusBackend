@@ -2,14 +2,18 @@ const Listing = require('../models/Listing');
 const User = require('../models/User');
 
 const createListing = async (req, res) => {
+
+    console.log("backend hit");
+
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Extract uploaded image URLs from Cloudinary
-    const imageUrls = req.files.map(file => file.path);
+  const imageUrls = req.files['images']?.map(file => file.path) || [];
+  const videoUrl = req.files['video']?.[0]?.path || null;
 
+    
     const {
       name,
       description,
@@ -28,6 +32,7 @@ const createListing = async (req, res) => {
       price,
       location,
       images: imageUrls,
+      video: videoUrl, 
       features,
       seller,
       school: user.school,
@@ -39,6 +44,7 @@ const createListing = async (req, res) => {
 
     const savedListing = await newListing.save();
     res.status(201).json({ message: 'Listing created successfully', listing: savedListing });
+    console.log(newListing)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to create listing' });

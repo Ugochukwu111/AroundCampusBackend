@@ -6,6 +6,7 @@ const listingSchema = new mongoose.Schema({
   price: Number,
   location: String,
   images: { type: [String], required: true },
+  video: { type: String },
   features: [String],
   seller: String,
   school: String,
