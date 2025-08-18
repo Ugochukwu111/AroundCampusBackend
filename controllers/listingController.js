@@ -38,7 +38,7 @@ const createListing = async (req, res) => {
       school: user.school,
       userId: user._id,
       userName,
-      phoneNumber,
+      phoneNumber: user.phoneNumber,
       estimatedTime,
     });
 
