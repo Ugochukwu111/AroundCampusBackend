@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const User = require('./models/User');         // 👈 import your User model
+const Listing = require('./models/Listing'); 
 dotenv.config();
 connectDB(); // Connect to MongoDB
 
@@ -38,3 +40,15 @@ app.listen(PORT, () => {
 const listingRoutes = require('./routes/listingRoutes');
 app.use('/api/listings', listingRoutes);
 app.use('/api', require('./routes/contact'));
+
+app.get('/api/admin/stats', async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalListings = await Listing.countDocuments();
+
+    res.json({ totalUsers, totalListings });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
