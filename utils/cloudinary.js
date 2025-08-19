@@ -14,7 +14,7 @@ const combinedStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'around-campus/media', // all media goes here
-    allowed_formats: ['jpg', 'png', 'jpeg', 'mp4', 'mov', 'avi'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov'],
     resource_type: 'auto', // allows both images & videos
   },
 });
