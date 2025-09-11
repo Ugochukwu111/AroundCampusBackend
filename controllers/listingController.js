@@ -3,8 +3,6 @@ const User = require('../models/User');
 
 const createListing = async (req, res) => {
 
-    console.log("backend hit");
-
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -44,9 +42,7 @@ const createListing = async (req, res) => {
 
     const savedListing = await newListing.save();
     res.status(201).json({ message: 'Listing created successfully', listing: savedListing });
-    console.log(newListing)
-  } catch (error) {
-    console.error(error);
+  } catch (error) {   
     res.status(500).json({ message: 'Failed to create listing' });
   }
 };
@@ -54,8 +50,6 @@ const createListing = async (req, res) => {
 
 
 const getListings = async (req, res) => {
-  console.log("📥 [GET] /api/listings - Incoming request");
-
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -66,10 +60,7 @@ const getListings = async (req, res) => {
     }
 
     const userSchool = user.school;
-    console.log(`🏫 User's school: ${userSchool}`);
-
     const listings = await Listing.find({ school: userSchool });
-    console.log(`✅ Listings fetched for ${userSchool}: ${listings.length} items`);
 
     res.status(200).json(listings);
   } catch (error) {
@@ -79,8 +70,33 @@ const getListings = async (req, res) => {
 };
 
 
+// 🆕 Delete a listing
+const deleteListing = async (req, res) => {
+  try {
+
+    const userId = req.user.id;
+    const listingId = req.params.id;
+
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // only allow the owner to delete
+    if (listing.userId.toString() !== userId) {
+      return res.status(403).json({ message: "Not authorized to delete this listing" });
+    }
+
+    await listing.deleteOne();
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete listing', error: error.message });
+  }
+};
+
+
 
 module.exports = {
   createListing,
   getListings,
+  deleteListing,
 };

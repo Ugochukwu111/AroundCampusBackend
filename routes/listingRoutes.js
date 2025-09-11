@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getListings, createListing } = require('../controllers/listingController');
+const { getListings, createListing , deleteListing} = require('../controllers/listingController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { upload } = require('../utils/cloudinary');
 
@@ -15,5 +15,8 @@ router.post('/', verifyToken, uploadListingFiles, createListing);
 
 // Get listings
 router.get('/', verifyToken, getListings);
+
+// 🆕 Delete listing
+router.delete('/:id', verifyToken, deleteListing);
 
 module.exports = router;
