@@ -42,7 +42,8 @@ const createListing = async (req, res) => {
 
     const savedListing = await newListing.save();
     res.status(201).json({ message: 'Listing created successfully', listing: savedListing });
-  } catch (error) {   
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Failed to create listing' });
   }
 };
@@ -50,6 +51,7 @@ const createListing = async (req, res) => {
 
 
 const getListings = async (req, res) => {
+
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -60,11 +62,14 @@ const getListings = async (req, res) => {
     }
 
     const userSchool = user.school;
+
+
     const listings = await Listing.find({ school: userSchool });
+
 
     res.status(200).json(listings);
   } catch (error) {
-    console.error("❌ Error fetching listings:", error.message);
+
     res.status(500).json({ message: 'Failed to fetch listings', error: error.message });
   }
 };
@@ -88,6 +93,8 @@ const deleteListing = async (req, res) => {
     }
 
     await listing.deleteOne();
+
+    res.status(200).json({ message: "Listing deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete listing', error: error.message });
   }
