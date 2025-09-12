@@ -77,8 +77,9 @@ const getListings = async (req, res) => {
 
 // 🆕 Delete a listing
 const deleteListing = async (req, res) => {
-  try {
 
+  try {
+  console.log('backend hit')
     const userId = req.user.id;
     const listingId = req.params.id;
 
@@ -95,6 +96,7 @@ const deleteListing = async (req, res) => {
     await listing.deleteOne();
 
     res.status(200).json({ message: "Listing deleted successfully" });
+    console.log('Listing deleted successfully');
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete listing', error: error.message });
   }

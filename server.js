@@ -17,7 +17,9 @@ app.use(express.json()); // for parsing application/jsona
 // cors
 app.use(cors({
   origin: ['https://aroundcampus.ng','https://around-campus.vercel.app', 'http://127.0.0.1:5501'], // or your frontend URL
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
