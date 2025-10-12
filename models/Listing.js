@@ -28,5 +28,7 @@ const listingSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+listingSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 14 });
+
 
 module.exports = mongoose.model('Listing', listingSchema);
