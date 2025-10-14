@@ -2,7 +2,6 @@ const Listing = require('../models/Listing');
 const User = require('../models/User');
 
 const createListing = async (req, res) => {
-
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -16,6 +15,7 @@ const createListing = async (req, res) => {
       name,
       description,
       price,
+      subPrice,
       location,
       features,
       seller,
@@ -28,6 +28,7 @@ const createListing = async (req, res) => {
       name,
       description,
       price,
+      subPrice,
       location,
       images: imageUrls,
       video: videoUrl, 
@@ -40,10 +41,10 @@ const createListing = async (req, res) => {
       estimatedTime,
     });
 
+
     const savedListing = await newListing.save();
     res.status(201).json({ message: 'Listing created successfully', listing: savedListing });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Failed to create listing' });
   }
 };
@@ -57,7 +58,6 @@ const getListings = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      console.warn("⚠️ User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -79,7 +79,7 @@ const getListings = async (req, res) => {
 const deleteListing = async (req, res) => {
 
   try {
-  console.log('backend hit')
+
     const userId = req.user.id;
     const listingId = req.params.id;
 
@@ -96,7 +96,6 @@ const deleteListing = async (req, res) => {
     await listing.deleteOne();
 
     res.status(200).json({ message: "Listing deleted successfully" });
-    console.log('Listing deleted successfully');
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete listing', error: error.message });
   }
