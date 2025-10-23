@@ -14,7 +14,7 @@ const uploadListingFiles = upload.fields([
 router.post('/', verifyToken, uploadListingFiles, createListing);
 
 // Get listings
-router.get('/', verifyToken, getListings);
+router.get('/', getListings);
 
 // 🆕 Delete listing
 router.delete('/:id', verifyToken, deleteListing);
